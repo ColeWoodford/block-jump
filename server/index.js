@@ -65,8 +65,8 @@ io.on("connection", (socket) => {
   });
 });
 
-app.set("port", PORT);
+// app.set("port", PORT);
 //start server
-server.listen(PORT, () => {
+app.listen(PORT, () => {
   console.log(`server listening on port: ${PORT}`);
 });
