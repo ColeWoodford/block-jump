@@ -1,25 +1,114 @@
-import React from "react";
-import logo from "./logo.svg";
-import "./App.css";
+import { useEffect, useState, useRef } from 'react';
+import styled from 'styled-components';
+import Game from './three/Game';
+import HighScores from './components/HighScores';
+import useScore from './hooks/useScore';
+import { TEMP_ROOM_ID } from './constants/socketIO';
+
+import './App.css';
+
+const GameContainer = styled.div`
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+`;
+
+const Container = styled.div`
+  display: flex;
+  justify-content: center;
+  overflow: hidden;
+`;
+
+const ScoreDisplay = styled.h3`
+  position: absolute;
+  font-size: 35px;
+  color: #aaaaaa;
+  margin: 1rem;
+`;
+
+const Blocker = styled.div`
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+`;
+
+const Instructions = styled.div`
+  width: 100%;
+  height: 100%;
+
+  display: -webkit-box;
+  display: -moz-box;
+  display: box;
+
+  -webkit-box-orient: horizontal;
+  -moz-box-orient: horizontal;
+  box-orient: horizontal;
+
+  -webkit-box-pack: center;
+  -moz-box-pack: center;
+  box-pack: center;
+
+  -webkit-box-align: center;
+  -moz-box-align: center;
+  box-align: center;
+
+  color: #ffffff;
+  text-align: center;
+  font-family: Arial;
+  font-size: 14px;
+  line-height: 24px;
+
+  cursor: pointer;
+`;
 
 function App() {
+  const mountRef = useRef<HTMLDivElement>(null);
+  const scoreRef = useRef<number>(0);
+  const [highScore, setHighScore] = useState(0);
+  const { sendScore, scores } = useScore(TEMP_ROOM_ID);
+
+  useEffect(() => {
+    const NewGame = new Game(mountRef);
+    NewGame.init();
+    NewGame.animate();
+    window.addEventListener(
+      'resize',
+      function () {
+        NewGame.resize();
+      },
+      false
+    );
+    setInterval(() => setHighScore(NewGame.getHighScore()), 500);
+  }, []);
+
+  useEffect(() => {
+    if (highScore > scoreRef.current) {
+      // Send score to leaderboard if it updates
+      sendScore(highScore);
+    }
+    scoreRef.current = highScore;
+  }, [highScore, sendScore]);
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit test 2 <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
+    <Container>
+      <ScoreDisplay>HIGH SCORE: {highScore}</ScoreDisplay>
+      <HighScores scores={scores} />
+      <Blocker id="blocker">
+        <Instructions id="instructions">
+          <span>CLICK TO PLAY</span>
+          <br />
+          <br />
+          Move: WASD
+          <br />
+          Jump: SPACE
+          <br />
+          Look: MOUSE
+          <br />
+        </Instructions>
+      </Blocker>
+      <GameContainer ref={mountRef} />
+    </Container>
   );
 }
 
