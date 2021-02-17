@@ -3,7 +3,6 @@ import { io } from "socket.io-client/build/index";
 import {
   NEW_SCORE_MESSAGE_EVENT,
   NEW_HIGH_SCORES_MESSAGE_EVENT,
-  SOCKET_SERVER_URL,
 } from "../constants/socketIO";
 
 const useScore = (roomId: any) => {
@@ -12,11 +11,10 @@ const useScore = (roomId: any) => {
 
   useEffect(() => {
     // Creates a WebSocket Connection
-    console.log("here ", SOCKET_SERVER_URL);
-    // socketRef.current = io(SOCKET_SERVER_URL, {
-    //   query: { roomId },
-    // });
-    socketRef.current = io();
+    socketRef.current = io({
+      query: { roomId },
+    });
+    // socketRef.current = io();
 
     // Listens for incoming scores
     socketRef.current.on(NEW_HIGH_SCORES_MESSAGE_EVENT, (scores: any) => {
