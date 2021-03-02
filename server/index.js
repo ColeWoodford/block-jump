@@ -8,6 +8,7 @@ const io = require("socket.io")(server, {
     origin: "*",
   },
 });
+const CryptoJS = require("crypto-js");
 
 const PORT = process.env.PORT || 5000;
 const NEW_CHAT_MESSAGE_EVENT = "newChatMessage";
@@ -31,6 +32,7 @@ if (process.env.NODE_ENV == "production") {
 }
 
 io.on("connection", (socket) => {
+  let userId;
   // Join a conversation
   const { roomId } = socket.handshake.query;
   socket.join(roomId);
@@ -42,16 +44,20 @@ io.on("connection", (socket) => {
 
   // Listen for new scores
   socket.on(NEW_SCORE_MESSAGE_EVENT, (data) => {
+    const bytes = CryptoJS.AES.decrypt(data, "secret key 123");
+    const scoreMessageText = bytes.toString(CryptoJS.enc.Utf8);
+    const message = JSON.parse(scoreMessageText);
+    userId = message.senderId;
     let replacedScore = false;
     const noDuplicateTopTen = TOP_TEN_SCORES.map((score) => {
-      if (score.senderId === data.senderId && score.body < data.body) {
+      if (score.senderId === message.senderId && score.body < message.body) {
         replacedScore = true;
-        return data;
+        return message;
       }
       return score;
     });
     if (!replacedScore) {
-      noDuplicateTopTen.push(data);
+      noDuplicateTopTen.push(message);
     }
     noDuplicateTopTen.sort((a, b) => b.body - a.body);
     const newTopTen = noDuplicateTopTen.slice(0, 10);
@@ -62,6 +68,10 @@ io.on("connection", (socket) => {
 
   // Leave the room if the user closes the socket
   socket.on("disconnect", () => {
+    TOP_TEN_SCORES = TOP_TEN_SCORES.filter(
+      (score) => score.senderId !== userId
+    );
+    io.in(roomId).emit(NEW_HIGH_SCORES_MESSAGE_EVENT, TOP_TEN_SCORES);
     socket.leave(roomId);
   });
 });

@@ -4,6 +4,7 @@ import {
   NEW_SCORE_MESSAGE_EVENT,
   NEW_HIGH_SCORES_MESSAGE_EVENT,
 } from "../constants/socketIO";
+import { encryptMessage } from "../utility/encryptMessage";
 
 const useScore = (roomId: any) => {
   const [scores, setScores] = useState<any>([]);
@@ -33,11 +34,12 @@ const useScore = (roomId: any) => {
   // Sends a score to the server that
   // forwards it to the leaderboard of the same room
   const sendScore = (messageBody: any) => {
-    socketRef.current.emit(NEW_SCORE_MESSAGE_EVENT, {
+    const scoreMessage = encryptMessage({
       body: messageBody,
       senderId: socketRef.current.id,
       senderName: "Cole",
-    });
+    }).toString();
+    socketRef.current.emit(NEW_SCORE_MESSAGE_EVENT, scoreMessage);
   };
 
   return { scores, sendScore };
