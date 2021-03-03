@@ -1,11 +1,11 @@
-import { useState } from 'react';
-import useChat from '../../hooks/useChat';
-import { TEMP_ROOM_ID } from '../../constants/socketIO';
+import { useState } from "react";
+import useChat from "../../../hooks/useChat";
+import { TEMP_ROOM_ID } from "../../../constants/socketIO";
 
 const ChatDisplay = () => {
   const roomId = TEMP_ROOM_ID; // TODO replace with route
   const { messages, sendMessage } = useChat(roomId);
-  const [newMessage, setNewMessage] = useState('');
+  const [newMessage, setNewMessage] = useState("");
 
   const handleNewMessageChange = (event: any) => {
     setNewMessage(event.target.value);
@@ -13,7 +13,7 @@ const ChatDisplay = () => {
 
   const handleSendMessage = () => {
     sendMessage(newMessage);
-    setNewMessage('');
+    setNewMessage("");
   };
 
   return (

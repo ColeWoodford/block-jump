@@ -1,5 +1,5 @@
-import * as THREE from 'three';
-import { Player } from './Player';
+import * as THREE from "three";
+import { Player } from "./Player";
 
 export class Game {
   mountRef: any;
@@ -22,6 +22,7 @@ export class Game {
 
   constructor(mountRef: any) {
     this.animate = this.animate.bind(this);
+    this.delete = this.delete.bind(this);
 
     this.mountRef = mountRef;
     this.scene = new THREE.Scene();
@@ -48,7 +49,12 @@ export class Game {
 
     this.objects = [];
 
-    this.raycaster = new THREE.Raycaster(new THREE.Vector3(), new THREE.Vector3(0, -1, 0), 0, 10);
+    this.raycaster = new THREE.Raycaster(
+      new THREE.Vector3(),
+      new THREE.Vector3(0, -1, 0),
+      0,
+      10
+    );
 
     this.player = new Player(this);
 
@@ -84,11 +90,18 @@ export class Game {
     const colorsFloor = [];
 
     for (let i = 0, l = position.count; i < l; i++) {
-      this.color.setHSL(Math.random() * 0.3 + 0.5, 0.75, Math.random() * 0.25 + 0.75);
+      this.color.setHSL(
+        Math.random() * 0.3 + 0.5,
+        0.75,
+        Math.random() * 0.25 + 0.75
+      );
       colorsFloor.push(this.color.r, this.color.g, this.color.b);
     }
 
-    floorGeometry.setAttribute('color', new THREE.Float32BufferAttribute(colorsFloor, 3));
+    floorGeometry.setAttribute(
+      "color",
+      new THREE.Float32BufferAttribute(colorsFloor, 3)
+    );
 
     const floorMaterial = new THREE.MeshBasicMaterial({ vertexColors: true });
 
@@ -103,11 +116,18 @@ export class Game {
     const colorsBox = [];
 
     for (let i = 0, l = position.count; i < l; i++) {
-      this.color.setHSL(Math.random() * 0.3 + 0.5, 0.75, Math.random() * 0.25 + 0.75);
+      this.color.setHSL(
+        Math.random() * 0.3 + 0.5,
+        0.75,
+        Math.random() * 0.25 + 0.75
+      );
       colorsBox.push(this.color.r, this.color.g, this.color.b);
     }
 
-    boxGeometry.setAttribute('color', new THREE.Float32BufferAttribute(colorsBox, 3));
+    boxGeometry.setAttribute(
+      "color",
+      new THREE.Float32BufferAttribute(colorsBox, 3)
+    );
 
     for (let i = 0; i < 700; i++) {
       const boxMaterial = new THREE.MeshPhongMaterial({
@@ -115,15 +135,22 @@ export class Game {
         flatShading: true,
         vertexColors: true,
       });
-      boxMaterial.color.setHSL(Math.random() * 0.2 + 0.5, 0.75, Math.random() * 0.25 + 0.75);
+      boxMaterial.color.setHSL(
+        Math.random() * 0.2 + 0.5,
+        0.75,
+        Math.random() * 0.25 + 0.75
+      );
 
       const cubeDensity = 20; // how spread out are cubes
       const verticalDistribution = 40; // how high up should the cubes extend
 
       const box = new THREE.Mesh(boxGeometry, boxMaterial);
-      box.position.x = Math.floor(Math.random() * cubeDensity - 10) * cubeDensity;
-      box.position.y = Math.floor(Math.random() * verticalDistribution) * cubeDensity + 10;
-      box.position.z = Math.floor(Math.random() * cubeDensity - 10) * cubeDensity;
+      box.position.x =
+        Math.floor(Math.random() * cubeDensity - 10) * cubeDensity;
+      box.position.y =
+        Math.floor(Math.random() * verticalDistribution) * cubeDensity + 10;
+      box.position.z =
+        Math.floor(Math.random() * cubeDensity - 10) * cubeDensity;
 
       this.scene.add(box);
       this.objects.push(box);
@@ -159,6 +186,10 @@ export class Game {
     this.player.animatePlayer();
 
     this.renderer.render(this.scene, this.camera);
+  }
+
+  delete(): void {
+    this.player.delete();
   }
 }
 

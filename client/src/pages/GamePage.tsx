@@ -1,12 +1,11 @@
 import { useEffect, useState, useRef } from "react";
 import styled from "styled-components";
-import Game from "./three/Game";
-import HighScores from "./components/GamePageComponents/HighScores";
-import NameInput from "./components/LandingPageComponents/NameInput";
-import useScore from "./hooks/useScore";
-import { TEMP_ROOM_ID } from "./constants/socketIO";
-
-import "./App.css";
+import { Redirect } from "react-router-dom";
+import Game from "../three/Game";
+import HighScores from "../components/GamePageComponents/HighScores";
+import useScore from "../hooks/useScore";
+import { TEMP_ROOM_ID } from "../constants/socketIO";
+import { usePlayerNameContext } from "../contexts/playerNameContext";
 
 const GameContainer = styled.div`
   width: 100%;
@@ -63,14 +62,15 @@ const Instructions = styled.div`
   cursor: pointer;
 `;
 
-function App() {
+function GamePage() {
   const mountRef = useRef<HTMLDivElement>(null);
   const scoreRef = useRef<number>(0);
   const [highScore, setHighScore] = useState(0);
-  const [playerName, setPlayerName] = useState("");
   const { sendScore, scores } = useScore(TEMP_ROOM_ID);
+  const { playerName } = usePlayerNameContext();
 
   useEffect(() => {
+    if (playerName === "") return;
     const NewGame = new Game(mountRef);
     NewGame.init();
     NewGame.animate();
@@ -82,15 +82,20 @@ function App() {
       false
     );
     setInterval(() => setHighScore(NewGame.getHighScore()), 500);
-  }, []);
+    return () => {
+      NewGame.delete();
+    };
+  }, [playerName]);
 
   useEffect(() => {
     if (highScore > scoreRef.current) {
       // Send score to leaderboard if it updates
-      sendScore(highScore);
+      sendScore({ messageBody: highScore, playerName });
     }
     scoreRef.current = highScore;
-  }, [highScore, sendScore]);
+  }, [highScore, sendScore, playerName]);
+
+  if (playerName === "") return <Redirect to="/" />;
 
   return (
     <Container>
@@ -114,4 +119,4 @@ function App() {
   );
 }
 
-export default App;
+export default GamePage;

@@ -1,4 +1,14 @@
-import ReactDOM from 'react-dom';
-import App from './App';
+import Router from "./router";
+import ReactDOM from "react-dom";
+import { PlayerNameProvider } from "./contexts/playerNameContext";
+import "./App.css";
 
-ReactDOM.render(<App />, document.getElementById('root'));
+function App() {
+  return (
+    <PlayerNameProvider>
+      <Router />
+    </PlayerNameProvider>
+  );
+}
+
+ReactDOM.render(<App />, document.getElementById("root"));

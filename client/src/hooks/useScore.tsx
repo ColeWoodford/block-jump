@@ -33,11 +33,11 @@ const useScore = (roomId: any) => {
 
   // Sends a score to the server that
   // forwards it to the leaderboard of the same room
-  const sendScore = (messageBody: any) => {
+  const sendScore = ({ messageBody, playerName }: any) => {
     const scoreMessage = encryptMessage({
       body: messageBody,
       senderId: socketRef.current.id,
-      senderName: "Cole",
+      senderName: playerName,
     }).toString();
     socketRef.current.emit(NEW_SCORE_MESSAGE_EVENT, scoreMessage);
   };

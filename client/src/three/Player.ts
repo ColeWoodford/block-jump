@@ -1,6 +1,6 @@
-import * as THREE from 'three';
-import { Game } from './Game';
-import { PointerLockControls } from 'three/examples/jsm/controls/PointerLockControls';
+import * as THREE from "three";
+import { Game } from "./Game";
+import { PointerLockControls } from "three/examples/jsm/controls/PointerLockControls";
 
 export class Player {
   game: any;
@@ -19,9 +19,17 @@ export class Player {
 
   constructor(game: Game) {
     this.animatePlayer = this.animatePlayer.bind(this);
+    this.onKeyDown = this.onKeyDown.bind(this);
+    this.onKeyUp = this.onKeyUp.bind(this);
+    this.lockControls = this.lockControls.bind(this);
+    this.lockDisplay = this.lockDisplay.bind(this);
+    this.unlockDisplay = this.unlockDisplay.bind(this);
 
     this.game = game;
-    this.controls = new PointerLockControls(this.game.camera, this.game.mountRef.current);
+    this.controls = new PointerLockControls(
+      this.game.camera,
+      this.game.mountRef.current
+    );
     this.velocity = new THREE.Vector3();
     this.direction = new THREE.Vector3();
     this.moveForward = false;
@@ -33,86 +41,96 @@ export class Player {
 
   init(): void {
     this.prevJumpTime = performance.now();
-    // change to ref?
-    const blocker: any = document.getElementById('blocker');
-    const instructions: any = document.getElementById('instructions');
+    const instructions: any = document.getElementById("instructions");
 
-    instructions?.addEventListener('click', () => {
-      this.controls.lock();
-    });
+    instructions?.addEventListener("click", this.lockControls);
 
-    this.controls.addEventListener('lock', () => {
-      instructions.style.display = 'none';
-      blocker.style.display = 'none';
-    });
+    this.controls.addEventListener("lock", this.lockDisplay);
 
-    this.controls.addEventListener('unlock', () => {
-      blocker.style.display = 'block';
-      instructions.style.display = '';
-    });
+    this.controls.addEventListener("unlock", this.unlockDisplay);
 
     this.game.scene.add(this.controls.getObject());
 
-    const onKeyDown = (event: any) => {
-      switch (event.code) {
-        case 'ArrowUp':
-        case 'KeyW':
-          this.moveForward = true;
-          break;
+    document.addEventListener("keydown", this.onKeyDown);
+    document.addEventListener("keyup", this.onKeyUp);
+  }
 
-        case 'ArrowLeft':
-        case 'KeyA':
-          this.moveLeft = true;
-          break;
+  lockControls(): void {
+    this.controls.lock();
+  }
 
-        case 'ArrowDown':
-        case 'KeyS':
-          this.moveBackward = true;
-          break;
+  lockDisplay(): void {
+    const blocker: any = document.getElementById("blocker");
+    const instructions: any = document.getElementById("instructions");
 
-        case 'ArrowRight':
-        case 'KeyD':
-          this.moveRight = true;
-          break;
+    instructions.style.display = "none";
+    blocker.style.display = "none";
+  }
 
-        case 'Space':
-          const time = performance.now();
-          const deltaJump = time - this.prevJumpTime;
-          if (this.canJump === true && deltaJump > 500) {
-            this.velocity.y += 350;
-            this.prevJumpTime = time;
-          }
-          this.canJump = false;
-          break;
-      }
-    };
+  unlockDisplay(): void {
+    const blocker: any = document.getElementById("blocker");
+    const instructions: any = document.getElementById("instructions");
 
-    const onKeyUp = (event: any) => {
-      switch (event.code) {
-        case 'ArrowUp':
-        case 'KeyW':
-          this.moveForward = false;
-          break;
+    blocker.style.display = "block";
+    instructions.style.display = "";
+  }
 
-        case 'ArrowLeft':
-        case 'KeyA':
-          this.moveLeft = false;
-          break;
+  onKeyDown(event: any): void {
+    switch (event.code) {
+      case "ArrowUp":
+      case "KeyW":
+        this.moveForward = true;
+        break;
 
-        case 'ArrowDown':
-        case 'KeyS':
-          this.moveBackward = false;
-          break;
+      case "ArrowLeft":
+      case "KeyA":
+        this.moveLeft = true;
+        break;
 
-        case 'ArrowRight':
-        case 'KeyD':
-          this.moveRight = false;
-          break;
-      }
-    };
+      case "ArrowDown":
+      case "KeyS":
+        this.moveBackward = true;
+        break;
 
-    document.addEventListener('keydown', onKeyDown);
-    document.addEventListener('keyup', onKeyUp);
+      case "ArrowRight":
+      case "KeyD":
+        this.moveRight = true;
+        break;
+
+      case "Space":
+        const time = performance.now();
+        const deltaJump = time - this.prevJumpTime;
+        if (this.canJump === true && deltaJump > 500) {
+          this.velocity.y += 350;
+          this.prevJumpTime = time;
+        }
+        this.canJump = false;
+        break;
+    }
+  }
+
+  onKeyUp(event: any): void {
+    switch (event.code) {
+      case "ArrowUp":
+      case "KeyW":
+        this.moveForward = false;
+        break;
+
+      case "ArrowLeft":
+      case "KeyA":
+        this.moveLeft = false;
+        break;
+
+      case "ArrowDown":
+      case "KeyS":
+        this.moveBackward = false;
+        break;
+
+      case "ArrowRight":
+      case "KeyD":
+        this.moveRight = false;
+        break;
+    }
   }
 
   animatePlayer(): void {
@@ -122,7 +140,9 @@ export class Player {
       this.game.raycaster.ray.origin.copy(this.controls.getObject().position);
       this.game.raycaster.ray.origin.y -= 10;
 
-      const intersections = this.game.raycaster.intersectObjects(this.game.objects);
+      const intersections = this.game.raycaster.intersectObjects(
+        this.game.objects
+      );
 
       const onObject = intersections.length > 0;
 
@@ -139,7 +159,8 @@ export class Player {
 
       if (this.moveForward || this.moveBackward)
         this.velocity.z -= this.direction.z * 400.0 * delta;
-      if (this.moveLeft || this.moveRight) this.velocity.x -= this.direction.x * 400.0 * delta;
+      if (this.moveLeft || this.moveRight)
+        this.velocity.x -= this.direction.x * 400.0 * delta;
 
       if (onObject === true) {
         this.velocity.y = Math.max(0, this.velocity.y);
@@ -159,5 +180,17 @@ export class Player {
       }
     }
     this.game.prevTime = time;
+  }
+
+  delete(): void {
+    this.controls.dispose();
+
+    const instructions: any = document.getElementById("instructions");
+
+    instructions?.removeEventListener("click", this.lockControls);
+    this.controls.removeEventListener("lock", this.lockDisplay);
+    this.controls.removeEventListener("unlock", this.unlockDisplay);
+    document.removeEventListener("keydown", this.onKeyDown);
+    document.removeEventListener("keyup", this.onKeyUp);
   }
 }
