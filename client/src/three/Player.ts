@@ -183,8 +183,6 @@ export class Player {
   }
 
   delete(): void {
-    this.controls.dispose();
-
     const instructions: any = document.getElementById("instructions");
 
     instructions?.removeEventListener("click", this.lockControls);
